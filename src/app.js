@@ -11,13 +11,19 @@ app.use(cors());
 const repositories = [];
 
 app.get("/repositories", (request, response) => {
-    // TODO
     return response.json(repositories);
 });
 
 app.post("/repositories", (request, response) => {
     const { title, url, techs } = request.body;
-    const repository = { id: uuid(), title: 'Desafio Node.js', url: 'http://github.com/viborotto/conceitos-nodejs', techs: ["Node.js", "JavaScript"], likes: 0 };
+
+    const repository = {
+        id: uuid(),
+        url: "https://github.com/Rocketseat/umbriel",
+        title: "Umbriel",
+        techs: ["Node", "Express", "TypeScript"],
+        likes: 0
+    };
 
     repositories.push(repository);
     return response.json(repository);
@@ -27,7 +33,8 @@ app.put("/repositories/:id", (request, response) => {
     const { title, url, techs } = request.body;
     const { id } = request.params;
     const repositoryIndex = repositories.findIndex(repository => repository.id === id);
-    if (repositoryIndex < 0) {
+
+    if (repositoryIndex === -1) {
         return response.status(400).json({
             error: "repository not found"
         });
@@ -37,7 +44,8 @@ app.put("/repositories/:id", (request, response) => {
         id,
         title,
         url,
-        techs
+        techs,
+        likes: repositories[repositoryIndex].likes
     };
     repositories[repositoryIndex] = repository;
     return response.json(repository);
@@ -45,7 +53,6 @@ app.put("/repositories/:id", (request, response) => {
 });
 
 app.delete("/repositories/:id", (request, response) => {
-    // TODO
     const { id } = request.params;
     const repositoryIndex = repositories.findIndex(repository => repository.id === id);
 
@@ -64,8 +71,14 @@ app.post("/repositories/:id/like", (request, response) => {
     //aumentar o numero de likes do repository specifico
     const { id } = request.params;
     const repositoryIndex = repositories.findIndex(repository => repository.id === id);
-    repositories[repositoryIndex].likes += 1;
 
+    if (repositoryIndex === -1) {
+        return response.status(400).json({
+            error: "repository not found"
+        });
+    }
+
+    repositories[repositoryIndex].likes++;
     return response.status(201).json(repositories[repositoryIndex]);
 });
 
